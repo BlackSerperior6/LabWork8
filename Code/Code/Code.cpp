@@ -25,21 +25,21 @@ struct Country //Наша структура
         cout << "Имя: " << Name << endl;
         cout << "Язык: " << NationalLanguage << endl;
         cout << "Валюта: " << Currency << endl;
-        cout << "Курс по отношению к доллару: " << DollareExchangeRate << endl;
+        cout << "Курс валюты по отношению к доллару: " << DollareExchangeRate << endl;
     }
 };
 
 void SerString(ofstream* f, string line) //Метод для сириализация строки
 {
-    string::size_type Lengh = line.length(); //Получаем размер строк
-    f->write((char*)(&Lengh), sizeof(Lengh)); //Записываем в файл размер строки
-    f->write((char*)(line.data()), Lengh); //Записываем саму строку
+   size_t Lengh = line.length(); //Получаем размер строк
+    f->write((char*) (&Lengh), sizeof(Lengh)); //Записываем в файл размер строки
+    f->write((char*) (line.data()), Lengh); //Записываем саму строку
 }
 
 string DesString(ifstream *f)  //Метод для дисириализации строки
 {
     //Получаем размер дисирнализируемой строки
-    string::size_type Lengh; 
+    size_t Lengh = 0;
     f->read((char*)(&Lengh), sizeof(Lengh));
 
     //Объявляем строку с нужным размером
@@ -59,7 +59,7 @@ void Serialize(ofstream* f, Country country) //Метод для сириали�
 
     //Сириализируем double элемент структуры
     double cur = country.DollareExchangeRate;
-    f->write((char*)&cur, sizeof(cur));
+    f->write((char*) &cur, sizeof(cur));
  }
 
 Country DeSerialize(ifstream *f) //Метод для дисириализация структуры
@@ -72,9 +72,9 @@ Country DeSerialize(ifstream *f) //Метод для дисириализаци�
     country.Currency = DesString(f);
 
     //Дисириализируем double элемент структуры
-    double dex;
-    f->read((char*)&dex, sizeof(dex));
-    country.DollareExchangeRate = dex;
+    double der;
+    f->read((char*)&der, sizeof(der));
+    country.DollareExchangeRate = der;
 
     return country; //Возаращаем структуру
 }
@@ -138,7 +138,7 @@ int main()
 
     if (!InputStream.is_open())
     {
-        cout << "Не удалось открыть фаил!" << endl;
+        cout << "Ошибка, фаил был удален во время выполнения программы!" << endl;
         return 0;
     }
 
@@ -156,13 +156,13 @@ int main()
         cout << endl;
     }
 
-    InputStream.close(); //Закрываем in поток
+    InputStream.close(); //Закрываем входной поток
 
     OutputStream.open("F1.bin", ios_base::binary); //Открываем бинарный фаил в входном потоке
 
-    if (!OutputStream.is_open())
+    if (!OutputStream.is_open()) //Проверка на открытие
     {
-        cout << "Не удалось открыть фаил!" << endl;
+        cout << "Ошибка, фаил был удален во время выполнения программы!" << endl;
         delete[] Buffer;
         return 0;
     }
@@ -177,7 +177,7 @@ int main()
 
     for (int i = 0; i < Amount; i++) //Перебираем все элементы буффера
     {
-        if (Buffer[i].Name != BadName)  //Если имя страны не соблюдает с запретным
+        if (Buffer[i].Name != BadName)  //Если имя страны не совподает с запретным
             Serialize(&OutputStream, Buffer[i]); //То записываем в файл
         else
             NewLenght--; //Иначе уменьшаем переменную нового размера
@@ -190,12 +190,11 @@ int main()
     int newElementsCount;
     cin >> newElementsCount; //Получаем кол-во стран, которое надо ввести дополнительно
 
-    cin.ignore();
-
     if (newElementsCount >= 1) //Если данное количество больше или равно 1
     {
+        cin.ignore();
         cout << endl;
-        WriteFile(&OutputStream, newElementsCount); //То дописываем в фаил сколько надо стран
+        WriteFile(&OutputStream, newElementsCount); //то дописываем в фаил сколько надо стран
     }
         
 
@@ -205,7 +204,7 @@ int main()
 
     if (!InputStream.is_open())
     {
-        cout << "Не удалось открыть фаил!" << endl;
+        cout << "Ошибка, фаил был удален во время выполнения программы!" << endl;
         return 0;
     }
 
@@ -213,22 +212,19 @@ int main()
 
     cout << endl;
 
-    if (NewLenght <= 0) //Если новое кол-во элементов = 0
-    {
-        cout << "Стран не осталось" << endl;  //То просто сообщаем о этом
-    }
-    else
+    if (NewLenght > 0) //Если новое кол-во элементов больше 0
     {
         cout << "Ваши страны:" << endl << endl;
 
-        for (int i = 0; i < NewLenght; i++) //Инчае выводим страны из файла
+        for (int i = 0; i < NewLenght; i++) //То выводим страны из файла
         {
-            Country country;
-            country = DeSerialize(&InputStream);
-
-            country.PrintOut();
+            DeSerialize(&InputStream).PrintOut();
             cout << endl;
-        }
+        } 
+    }
+    else
+    {
+        cout << "Стран не осталось" << endl;  //иначе сообщаем, что стран не осталось
     }
 
     InputStream.close(); //Закрываем выходной поток
