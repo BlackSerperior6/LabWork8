@@ -31,21 +31,21 @@ struct Country //Наша структура
 
 void SerString(ofstream* f, string line) //Метод для сириализация строки
 {
-   size_t Lengh = line.length(); //Получаем размер строк
-    f->write((char*) (&Lengh), sizeof(Lengh)); //Записываем в файл размер строки
-    f->write((char*) (line.data()), Lengh); //Записываем саму строку
+   size_t Length = line.length(); //Получаем размер строк
+    f->write((char*) (&Length), sizeof(Length)); //Записываем в файл размер строки
+    f->write((char*) (line.data()), Length); //Записываем саму строку
 }
 
 string DesString(ifstream *f)  //Метод для дисириализации строки
 {
     //Получаем размер дисирнализируемой строки
-    size_t Lengh = 0;
-    f->read((char*)(&Lengh), sizeof(Lengh));
+    size_t Length = 0;
+    f->read((char*) (&Length), sizeof(Length));
 
     //Объявляем строку с нужным размером
     string Line;
-    Line.resize(Lengh);
-    f->read((char*)(Line.data()), Lengh); //Получаем строку
+    Line.resize(Length);
+    f->read((char*) (Line.data()), Length); //Получаем строку
 
     return Line; //И возвращаем её
 }
@@ -58,8 +58,8 @@ void Serialize(ofstream* f, Country country) //Метод для сириали�
     SerString(f, country.Currency);
 
     //Сириализируем double элемент структуры
-    double cur = country.DollareExchangeRate;
-    f->write((char*) &cur, sizeof(cur));
+    double der = country.DollareExchangeRate;
+    f->write((char*) &der, sizeof(der));
  }
 
 Country DeSerialize(ifstream *f) //Метод для дисириализация структуры
@@ -72,9 +72,9 @@ Country DeSerialize(ifstream *f) //Метод для дисириализаци�
     country.Currency = DesString(f);
 
     //Дисириализируем double элемент структуры
-    double der;
-    f->read((char*)&der, sizeof(der));
-    country.DollareExchangeRate = der;
+    double dex = 0.0;
+    f->read((char*) &dex, sizeof(dex));
+    country.DollareExchangeRate = dex;
 
     return country; //Возаращаем структуру
 }
